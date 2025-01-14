@@ -13,7 +13,7 @@
       padding: 50px;
       margin: 0;
       height: 100vh;
-      overflow: hidden; /* Prevent scrolling of the whole page */
+      overflow: hidden;
     }
 
     .container {
@@ -24,8 +24,8 @@
       border-radius: 10px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
       transition: transform 0.3s;
-      height: 80vh; /* Fixed height for the container */
-      overflow: hidden; /* Prevent scrolling in the container */
+      height: 80vh;
+      overflow: hidden;
     }
 
     .container:hover {
@@ -67,8 +67,8 @@
     #results {
       margin-top: 20px;
       text-align: left;
-      max-height: 60vh; /* Limit the height of the results area */
-      overflow-y: auto; /* Enable vertical scrolling */
+      max-height: 60vh;
+      overflow-y: auto;
     }
 
     .result {
@@ -86,11 +86,11 @@
       background-color: #28a745;
       color: white;
       border: none;
-      padding: 3px 6px; /* Smaller padding for the copy button */
+      padding: 3px 6px;
       border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.3s;
-      font-size: 14px; /* Smaller font size */
+      font-size: 14px;
     }
 
     .copyButton:hover {
@@ -102,55 +102,16 @@
       font-weight: bold;
       color: #555;
     }
-
-    /* Dropdown styles */
-    .dropdown {
-      position: relative;
-      display: inline-block;
-      margin-top: 20px;
-    }
-
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #f9f9f9;
-      min-width: 160px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      z-index: 1;
-      right: 0; /* Align to the right */
-      border-radius: 5px;
-    }
-
-    .dropdown-content button {
-      width: 100%;
-      border: none;
-      padding: 10px;
-      text-align: left;
-      background: none;
-      color: #007bff;
-    }
-
-    .dropdown-content button:hover {
-      background-color: #f1f1f1;
-    }
-
-    .show {
-      display: block;
-    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>מחולל כתובות Gmail</h1>
-    <input type="text" id="emailInput" placeholder="הזן כתובת Gmail ללא @ בסוף">
-    <button id="generateButton">צור כתובות</button>
-    <div class="dropdown">
-      <button id="actionButton" style="display: none;">העתק או הורד</button>
-      <div id="dropdownContent" class="dropdown-content">
-        <button id="copyAllButton" style="display: none;">העתק הכל</button>
-        <button id="downloadButton" style="display: none;">הורד קובץ</button>
-      </div>
+    <div style="display: flex; align-items: center;">
+      <input type="text" id="emailInput" placeholder="הזן כתובת Gmail ללא נקודות">
+      <span>@gmail.com</span>
     </div>
+    <button id="generateButton">צור כתובות</button>
     <div id="count" style="display: none;">מספר כתובות שנוצרו: 0</div>
     <div id="results"></div>
   </div>
@@ -159,23 +120,17 @@
     document.getElementById('generateButton').addEventListener('click', function () {
       const emailInput = document.getElementById('emailInput').value.trim();
       const resultsDiv = document.getElementById('results');
-      const actionButton = document.getElementById('actionButton');
-      const copyAllButton = document.getElementById('copyAllButton');
-      const downloadButton = document.getElementById('downloadButton');
       const countDiv = document.getElementById('count');
       resultsDiv.innerHTML = '';
-      countDiv.style.display = 'none'; // Hide the address count at the start
-      actionButton.style.display = 'none'; // Hide the action button at the start
-      copyAllButton.style.display = 'none'; // Hide the "Copy All" button at the start
-      downloadButton.style.display = 'none'; // Hide the download button at the start
+      countDiv.style.display = 'none';
 
-      if (!emailInput.includes('@gmail.com')) {
-        resultsDiv.innerHTML = '<p style="color: red;">אנא הזן כתובת Gmail תקינה.</p>';
+      if (!emailInput) {
+        resultsDiv.innerHTML = '<p style="color: red;">אנא הזן כתובת Gmail.</p>';
         return;
       }
 
-      const [localPart, domain] = emailInput.split('@');
-      const variations = generateDotVariations(localPart).map(variation => `${variation}@${domain}`);
+      const domain = 'gmail.com';
+      const variations = generateDotVariations(emailInput).map(variation => `${variation}@${domain}`);
 
       variations.forEach(variation => {
         const div = document.createElement('div');
@@ -197,52 +152,8 @@
         resultsDiv.appendChild(div);
       });
 
-      // Update the action button, address count, and show dropdown options
       countDiv.textContent = `מספר כתובות שנוצרו: ${variations.length}`;
-      countDiv.style.display = 'block'; // Show the count
-      actionButton.style.display = 'block'; // Show the action button
-      actionButton.addEventListener('click', toggleDropdown); // Toggle dropdown on click
-
-      // Show the buttons
-      copyAllButton.style.display = 'block';
-      downloadButton.style.display = 'block';
-    });
-
-    function toggleDropdown() {
-      document.getElementById('dropdownContent').classList.toggle('show');
-    }
-
-    // Close the dropdown if the user clicks outside of it
-    window.onclick = function(event) {
-      if (!event.target.matches('#actionButton')) {
-        const dropdowns = document.getElementsByClassName("dropdown-content");
-        for (let i = 0; i < dropdowns.length; i++) {
-          const openDropdown = dropdowns[i];
-          if (openDropdown.classList.contains('show')) {
-            openDropdown.classList.remove('show');
-          }
-        }
-      }
-    };
-
-    // Copy all addresses
-    document.getElementById('copyAllButton').addEventListener('click', function () {
-      const allVariations = Array.from(document.querySelectorAll('.result span')).map(span => span.textContent).join('\n');
-      navigator.clipboard.writeText(allVariations).then(() => {
-        alert('כל הכתובות הועתקו ללוח!');
-      });
-    });
-
-    // Download TXT file
-    document.getElementById('downloadButton').addEventListener('click', function () {
-      const allVariations = Array.from(document.querySelectorAll('.result span')).map(span => span.textContent).join('\n');
-      const localPart = document.getElementById('emailInput').value.split('@')[0]; // Get the local part for the filename
-      const blob = new Blob([allVariations], { type: 'text/plain' });
-      const link = document.createElement('a');
-      link.href = window.URL.createObjectURL(blob);
-      link.download = `${localPart}_variations.txt`; // שם הקובץ יהיה לפי שם המשתמש
-      link.click();
-      alert('הקובץ הורד בהצלחה!');
+      countDiv.style.display = 'block';
     });
 
     function generateDotVariations(str) {
