@@ -102,9 +102,36 @@
       font-weight: bold;
       color: #555;
     }
+    .floating-button {
+  position: fixed; /* הכפתור צף */
+  bottom: 20px; /* מרחק מהתחתית */
+  left: 20px; /* מרחק מהצד השמאלי */
+  background-color: #333;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  z-index: 1000; /* הכפתור יישאר מעל כל האלמנטים האחרים */
+}
+
+.floating-button:hover {
+  background-color: #555;
+}
+
+.material-icons {
+  font-size: 28px;
+  color: white;
+}
   </style>
 </head>
 <body>
+  <div id="shareButton" class="floating-button">
+  <span class="material-icons">share</span>
+</div>
   <div class="container">
     <h1>מחולל כתובות Gmail</h1>
     <div style="display: flex; align-items: center;">
@@ -163,6 +190,23 @@
           results.push(prefix);
           return;
         }
+        // משתנה לכפתור השיתוף
+const shareButton = document.getElementById("shareButton");
+
+// מאזין לאירוע לחיצה על כפתור השיתוף
+shareButton.addEventListener("click", () => {
+  if (navigator.share) {
+    navigator.share({
+      title: "מחולל כתובות Gmail",
+      text: "מצאתי את יוצר כתובות ה-Gmail הזה זה ממש נהדר כדאי לך לבדוק בקישור הבא",
+      url: "https://temp-g-mail.github.io/Gmail-gnartor/",
+    })
+      .then(() => console.log("שיתוף הצליח"))
+      .catch((error) => console.error("שיתוף נכשל", error));
+  } else {
+    alert("שיתוף לא נתמך בדפדפן זה.");
+  }
+});
 
         addDots(prefix + suffix[0], suffix.slice(1));
         addDots(prefix + '.' + suffix[0], suffix.slice(1));
